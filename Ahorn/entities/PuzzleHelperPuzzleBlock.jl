@@ -3,7 +3,7 @@ module PuzzleHelperPuzzleBlock
 using ..Ahorn, Maple
 
 
-@mapdef Entity "Puzzlehelper/PuzzleFallingBlock" PuzzleBlock(x::Integer, y::Integer, width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, tiletype::String="3", climbFall::Bool=true, behind::Bool=false, ignoreJumpThru::Bool=false)
+@mapdef Entity "PuzzleHelper/PuzzleFallingBlock" PuzzleBlock(x::Integer, y::Integer, width::Integer=Maple.defaultBlockWidth, height::Integer=Maple.defaultBlockHeight, tiletype::String="3", climbFall::Bool=true, behind::Bool=false, ignoreJumpThru::Bool=false)
 
 const placements = Ahorn.PlacementDict(
     "Puzzle Falling Block" => Ahorn.EntityPlacement(
