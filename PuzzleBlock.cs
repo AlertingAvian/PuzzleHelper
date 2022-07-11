@@ -5,7 +5,7 @@ using System;
 
 namespace Celeste.Mod.PuzzleHelper
 {
-    [CustomEntity("PuzzleHelper/PuzzleFallingBlock", "PuzzleHelper/PuzzleBlock")]
+    [CustomEntity("PuzzleHelper/PuzzleBlock")] // same as fallingBlock but should land on moving platforms and move with them
     public class PuzzleBlock : FallingBlock
     {
 
@@ -15,11 +15,13 @@ namespace Celeste.Mod.PuzzleHelper
         public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool ignoreJumpThrus)
             : base(position, tile, width, height, finalBoss, behind, climbFall)
         {
+            Logger.Log(LogLevel.Debug, "PuzzleHelper", "New instance of PuzzleBlock");
+            Logger.Log(LogLevel.Debug, "PuzzleHelper", ignoreJumpThrus.ToString());
         }
 
         public PuzzleBlock(EntityData data, Vector2 offset)
             : this(data.Position + offset, data.Char("tiletype", '3'), data.Width, data.Height, finalBoss: false, data.Bool("behind"), data.Bool("climbFall", defaultValue: true), data.Bool("ignoreJumpThrus", defaultValue: false))
-        { 
+        {
         }
 
         public bool IsRiding(JumpThru jumpThru)
