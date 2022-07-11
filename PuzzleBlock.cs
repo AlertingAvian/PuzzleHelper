@@ -12,8 +12,14 @@ namespace Celeste.Mod.PuzzleHelper
         public bool ignoreJumpThrus;
         
 
-        public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool ignoreJumpThrus) : base(position, tile, width, height, finalBoss, behind, climbFall)
+        public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool ignoreJumpThrus)
+            : base(position, tile, width, height, finalBoss, behind, climbFall)
         {
+        }
+
+        public PuzzleBlock(EntityData data, Vector2 offset)
+            : this(data.Position + offset, data.Char("tiletype", '3'), data.Width, data.Height, finalBoss: false, data.Bool("behind"), data.Bool("climbFall", defaultValue: true), data.Bool("ignoreJumpThrus", defaultValue: false))
+        { 
         }
 
         public bool IsRiding(JumpThru jumpThru)
