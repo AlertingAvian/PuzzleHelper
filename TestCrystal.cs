@@ -61,7 +61,7 @@ namespace Celeste.Mod.TestCrystal
             base.Collider = new Hitbox(8f, 10f, -4f, -10f);
             Add(sprite = GFX.SpriteBank.Create("theo_crystal"));
             sprite.Scale.X = -1f;
-            Add(Hold = new Holdable(0.1f));
+            Add(Hold = new Holdable(0.1f)); // Will not need holdable things for puzzle block
             Hold.PickupCollider = new Hitbox(16f, 22f, -8f, -16f);
             Hold.SlowFall = false;
             Hold.SlowRun = true;
@@ -92,13 +92,13 @@ namespace Celeste.Mod.TestCrystal
             Level = SceneAs<Level>();
             foreach (TestCrystal entity in Level.Tracker.GetEntities<TestCrystal>())
             {
-                if (entity != this && entity.Hold.IsHeld)
+                if (entity != this && entity.Hold.IsHeld) // dont think this is needed. I think it is for when you walk into a room holding a crystal that already has one in it.
                 {
                     RemoveSelf();
                 }
             }
 
-            if (Level.Session.Level == "e-00")
+            if (Level.Session.Level == "e-00") // 
             {
                 tutorialGui = new BirdTutorialGui(this, new Vector2(0f, -24f), Dialog.Clean("tutorial_carry"), Dialog.Clean("tutorial_hold"), BirdTutorialGui.ButtonPrompt.Grab);
                 tutorialGui.Open = false;
@@ -109,31 +109,31 @@ namespace Celeste.Mod.TestCrystal
         public override void Update()
         {
             base.Update();
-            if (shattering || dead)
+            if (shattering || dead) // cant shatter or die so not need
             {
                 return;
             }
 
-            if (swatTimer > 0f)
+            if (swatTimer > 0f) // dont know what swat is yet TODO
             {
                 swatTimer -= Engine.DeltaTime;
             }
 
             hardVerticalHitSoundCooldown -= Engine.DeltaTime;
-            if (OnPedestal)
+            if (OnPedestal) // cant be on pedestal not need
             {
                 base.Depth = 8999;
                 return;
             }
 
             base.Depth = 100;
-            if (Hold.IsHeld)
+            if (Hold.IsHeld) // no hold not need
             {
                 prevLiftSpeed = Vector2.Zero;
             }
             else
             {
-                if (OnGround())
+                if (OnGround()) // think this has things to do with being held, probably dont need TODO
                 {
                     float target = ((!OnGround(Position + Vector2.UnitX * 3f)) ? 20f : (OnGround(Position - Vector2.UnitX * 3f) ? 0f : (-20f)));
                     Speed.X = Calc.Approach(Speed.X, target, 800f * Engine.DeltaTime);
@@ -226,7 +226,7 @@ namespace Celeste.Mod.TestCrystal
 
                 Player entity = base.Scene.Tracker.GetEntity<Player>();
                 TempleGate templeGate = CollideFirst<TempleGate>();
-                if (templeGate != null && entity != null)
+                if (templeGate != null && entity != null) // probably dont need
                 {
                     templeGate.Collidable = false;
                     MoveH((float)(Math.Sign(entity.X - base.X) * 32) * Engine.DeltaTime);
@@ -259,7 +259,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        public IEnumerator Shatter()
+        public IEnumerator Shatter() // cant shatter dont need
         {
             shattering = true;
             BloomPoint bloom = new BloomPoint(0f, 32f);
@@ -282,7 +282,7 @@ namespace Celeste.Mod.TestCrystal
             Level.Shake();
         }
 
-        public void ExplodeLaunch(Vector2 from)
+        public void ExplodeLaunch(Vector2 from) // not need
         {
             if (!Hold.IsHeld)
             {
@@ -291,7 +291,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        public void Swat(HoldableCollider hc, int dir)
+        public void Swat(HoldableCollider hc, int dir) // not need
         {
             if (Hold.IsHeld && hitSeeker == null)
             {
@@ -301,7 +301,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        public bool Dangerous(HoldableCollider holdableCollider)
+        public bool Dangerous(HoldableCollider holdableCollider) // not need
         {
             if (!Hold.IsHeld && Speed != Vector2.Zero)
             {
@@ -311,7 +311,7 @@ namespace Celeste.Mod.TestCrystal
             return false;
         }
 
-        public void HitSeeker(Seeker seeker)
+        public void HitSeeker(Seeker seeker) // not need
         {
             if (!Hold.IsHeld)
             {
@@ -321,7 +321,7 @@ namespace Celeste.Mod.TestCrystal
             Audio.Play("event:/game/05_mirror_temple/crystaltheo_hit_side", Position);
         }
 
-        public void HitSpinner(Entity spinner)
+        public void HitSpinner(Entity spinner) // not need
         {
             if (!Hold.IsHeld && Speed.Length() < 0.01f && base.LiftSpeed.Length() < 0.01f && (previousPosition - base.ExactPosition).Length() < 0.01f && OnGround())
             {
@@ -370,9 +370,14 @@ namespace Celeste.Mod.TestCrystal
             return false;
         }
 
-        private void OnCollideH(CollisionData data)
+        private void OnCollideH(CollisionData data) 
+            /*
+             * probably wont need
+             * could be implemented to move on x 
+             * but wont be for now
+             */
         {
-            if (data.Hit is DashSwitch)
+            if (data.Hit is DashSwitch) 
             {
                 (data.Hit as DashSwitch).OnDashCollide(null, Vector2.UnitX * Math.Sign(Speed.X));
             }
@@ -386,14 +391,14 @@ namespace Celeste.Mod.TestCrystal
             Speed.X *= -0.4f;
         }
 
-        private void OnCollideV(CollisionData data)
+        private void OnCollideV(CollisionData data) 
         {
-            if (data.Hit is DashSwitch)
+            if (data.Hit is DashSwitch) // keep for triggering Dash Switches (i think)
             {
                 (data.Hit as DashSwitch).OnDashCollide(null, Vector2.UnitY * Math.Sign(Speed.Y));
             }
 
-            if (Speed.Y > 0f)
+            if (Speed.Y > 0f) // dont need no particles or audio to be handled by block
             {
                 if (hardVerticalHitSoundCooldown <= 0f)
                 {
@@ -406,12 +411,12 @@ namespace Celeste.Mod.TestCrystal
                 }
             }
 
-            if (Speed.Y > 160f)
+            if (Speed.Y > 160f) // dont need no particles or audio to be handled by block
             {
                 ImpactParticles(data.Direction);
             }
 
-            if (Speed.Y > 140f && !(data.Hit is SwapBlock) && !(data.Hit is DashSwitch))
+            if (Speed.Y > 140f && !(data.Hit is SwapBlock) && !(data.Hit is DashSwitch)) // wont need, shouldn't be bouncing on anything but spring like things
             {
                 Speed.Y *= -0.6f;
             }
@@ -421,7 +426,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        private void ImpactParticles(Vector2 dir)
+        private void ImpactParticles(Vector2 dir) // NO PARTICLES
         {
             float direction;
             Vector2 position;
@@ -455,7 +460,7 @@ namespace Celeste.Mod.TestCrystal
             // probably wont try to figure out why because I won't be needing to do this
         }
 
-        public override bool IsRiding(Solid solid)
+        public override bool IsRiding(Solid solid) // DO NEED
         {
             if (Speed.Y == 0f)
             {
@@ -465,21 +470,22 @@ namespace Celeste.Mod.TestCrystal
             return false;
         }
 
-        protected override void OnSquish(CollisionData data)
+        protected override void OnSquish(CollisionData data) // not needed cant be squish
         {
             if (!TrySquishWiggle(data, 3, 3) && !SaveData.Instance.Assists.Invincible)
             {
                 Die();
+                Logger.Log(LogLevel.Verbose, "PuzzleHelper", "I WAS SQUISH");
             }
         }
 
-        private void OnPickup()
+        private void OnPickup() // not need
         {
             Speed = Vector2.Zero;
             AddTag(Tags.Persistent);
         }
 
-        private void OnRelease(Vector2 force)
+        private void OnRelease(Vector2 force) // not need
         {
             RemoveTag(Tags.Persistent);
             if (force.X != 0f && force.Y == 0f)
@@ -494,7 +500,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        public void Die()
+        public void Die() // blocks never die not need
         {
             if (!dead)
             {
