@@ -43,8 +43,12 @@
       <HintPath>..\..\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>..\..\YamlDotNet.dll</HintPath>
       <Private>False</Private>

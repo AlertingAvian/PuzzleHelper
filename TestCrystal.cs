@@ -16,18 +16,18 @@ namespace Celeste.Mod.TestCrystal
     [CustomEntity("PuzzleHelper/TestCrystal")]
     public class TestCrystal : Actor
     {
-
-        public static ParticleType P_Impact;
+        
+        public static ParticleType P_Impact; // dont need
 
         public Vector2 Speed;
 
-        public bool OnPedestal;
+        public bool OnPedestal; // dont need
 
-        public Holdable Hold;
+        public Holdable Hold; // dont need
 
-        private Sprite sprite;
+        private Sprite sprite; // dont need
 
-        private bool dead;
+        private bool dead; // dont need
 
         private Level Level;
 
@@ -37,42 +37,42 @@ namespace Celeste.Mod.TestCrystal
 
         private float noGravityTimer;
 
-        private Vector2 prevLiftSpeed;
+        private Vector2 prevLiftSpeed; // dont need
 
         private Vector2 previousPosition;
 
-        private HoldableCollider hitSeeker;
+        private HoldableCollider hitSeeker; // dont need
 
-        private float swatTimer;
+        private float swatTimer; // dont need
 
-        private bool shattering;
+        private bool shattering; // dont need
 
-        private float hardVerticalHitSoundCooldown;
+        private float hardVerticalHitSoundCooldown; // dont need
 
-        private BirdTutorialGui tutorialGui;
+        private BirdTutorialGui tutorialGui; // dont need
 
-        private float tutorialTimer;
+        private float tutorialTimer; // dont need
 
         public TestCrystal(Vector2 position)
             : base(position)
         {
             previousPosition = position;
-            base.Depth = 100;
-            base.Collider = new Hitbox(8f, 10f, -4f, -10f);
-            Add(sprite = GFX.SpriteBank.Create("theo_crystal"));
-            sprite.Scale.X = -1f;
-            Add(Hold = new Holdable(0.1f)); // Will not need holdable things for puzzle block
-            Hold.PickupCollider = new Hitbox(16f, 22f, -8f, -16f);
+            base.Depth = 100; // dont need
+            base.Collider = new Hitbox(8f, 10f, -4f, -10f); // dont need
+            Add(sprite = GFX.SpriteBank.Create("theo_crystal")); // dont need
+            sprite.Scale.X = -1f; // dont need
+            Add(Hold = new Holdable(0.1f)); // Will not need holdable things for puzzle block but is used in so many things im lost
+            Hold.PickupCollider = new Hitbox(16f, 22f, -8f, -16f); // dont need
             Hold.SlowFall = false;
             Hold.SlowRun = true;
-            Hold.OnPickup = OnPickup;
-            Hold.OnRelease = OnRelease;
-            Hold.DangerousCheck = Dangerous;
-            Hold.OnHitSeeker = HitSeeker;
-            Hold.OnSwat = Swat;
-            Hold.OnHitSpring = HitSpring;
-            Hold.OnHitSpinner = HitSpinner;
-            Hold.SpeedGetter = () => Speed;
+            Hold.OnPickup = OnPickup; // dont need
+            Hold.OnRelease = OnRelease; // dont need
+            Hold.DangerousCheck = Dangerous; // dont need
+            Hold.OnHitSeeker = HitSeeker; // dont need
+            Hold.OnSwat = Swat; // dont need
+            Hold.OnHitSpring = HitSpring; // ?
+            Hold.OnHitSpinner = HitSpinner; // ?
+            Hold.SpeedGetter = () => Speed; // ?
             onCollideH = OnCollideH;
             onCollideV = OnCollideV;
             LiftSpeedGraceTime = 0.1f;
