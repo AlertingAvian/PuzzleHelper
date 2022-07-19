@@ -7,15 +7,12 @@ namespace Celeste.Mod.PuzzleHelper
 {
     [CustomEntity("PuzzleHelper/PuzzleFallingBlock")] // same as fallingBlock but should land on moving platforms and move with them
     public class PuzzleBlock : FallingBlock
-    {
-
-        public bool ignoreJumpThrus;
-        
-
+    {   
         public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool ignoreJumpThrus)
             : base(position, tile, width, height, finalBoss, behind, climbFall)
         {
             Logger.Log(LogLevel.Verbose, "PuzzleHelper", "New instance of PuzzleBlock");
+
         }
 
         public PuzzleBlock(EntityData data, Vector2 offset)
@@ -23,29 +20,15 @@ namespace Celeste.Mod.PuzzleHelper
         {
         }
 
-        public bool IsRiding(JumpThru jumpThru)
+        private void onJumpThruCollide(JumpThru jumpThru)
         {
-            return !this.ignoreJumpThrus && base.CollideCheckOutside(jumpThru, this.Position + Vector2.UnitY);
+            Logger.Log(LogLevel.Debug, "PuzzleHelepr", jumpThru.ToString());
         }
 
-        public bool IsRiding(Solid solid)
+        public override void Update()
         {
-            return base.CollideCheck(solid, this.Position + Vector2.UnitY);
-        }
-
-        public bool OnGround(int downCheck = 1)
-        {
-            return base.CollideCheck<Solid>(this.Position + Vector2.UnitY * (float)downCheck) ||
-                (!this.ignoreJumpThrus && base.CollideCheckOutside<JumpThru>(this.Position + Vector2.UnitY * (float)downCheck));
-        }
-
-        public bool OnGround(Vector2 at, int downCheck = 1)
-        {
-            Vector2 position = this.Position;
-            this.Position = at;
-            bool result = this.OnGround(downCheck);
-            this.Position = position;
-            return result;
+            base.Update();
+            base.CollideDo<JumpThru>(new Action<JumpThru>(this.onJumpThruCollide), base.BottomCenter + new Vector2(0, 1));
         }
     }
 }
