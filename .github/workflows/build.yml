@@ -15,6 +15,9 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4.1.0
 
       - name: Get Dependencies
         run: |
