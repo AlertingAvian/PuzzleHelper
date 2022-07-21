@@ -50,16 +50,3 @@ jobs:
         with:
           name: PuzzleHelper
           path: ./modfiles
-        
-      - name: Bump Mod Version
-        run: python "./.github/scripts/update-yml.py"
-      
-      - name: Update Repository
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: everest.yaml
-          commit-msg: Bump mod version
-          branch: master
-          github-token: ${{ secrets.ACCESS_TOKEN }}
-        
-          
