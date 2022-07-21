@@ -41,6 +41,8 @@ if args.release:
 			data[0]['DLL'] = args.dll
 	else:
 		raise Exception(f"Something broke. \n{name} not found at data[0]['Name'] \ndata[0]['Name'] = {data[0]['Name']} \n{data=}")
+elif args.version and not args.release and not args.dll:
+	data[0]['Version'] = args.version
 else:
 	if data[0]['Name'] == name:
 		patch_version = int(data[0]['Version'].split('.')[2])
