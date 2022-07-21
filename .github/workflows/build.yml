@@ -38,7 +38,7 @@ jobs:
         run: python "./.github/scripts/update-yml.py" -dll "PuzzleHelper.dll"
       
       - name: Package Mod
-        run: Compress-Archive -Path "./Ahorn", "./Maps, "./bin/Release/PuzzleHelper.dll", "./everest.yaml" -DestinationPath "./PuzzleHelper.zip"
+        run: Compress-Archive -Path "./Ahorn", "./Maps", "./bin/Release/PuzzleHelper.dll", "./everest.yaml" -DestinationPath "./PuzzleHelper.zip"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1.0.0
