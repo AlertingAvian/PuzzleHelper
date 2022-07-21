@@ -5,6 +5,11 @@ on:
     branches: [ master ]
     paths-ignore:
       - everest.yaml
+      - .github/
+      - .gitignore
+      - .gitattributes
+      - LICENSE.txt
+      - README.md
 
 jobs:
   bump:
