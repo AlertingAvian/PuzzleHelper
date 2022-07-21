@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Get Dependencies
+        run: |
+          curl "${{ secrets.BUILDDEPS }}" -o "./download.zip"
+          mkdir "deps"
+          Expand-Archive -Path "./download.zip" -DestinationPath "./deps/"
+
+      - name: Build
+        run: msbuild PuzzleHelper.sln /p:Configuration=Release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: PuzzleHelper
+          path: bin/Release
+      
