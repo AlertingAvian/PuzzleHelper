@@ -50,6 +50,8 @@ else:
 		patch_version = int(data[0]['Version'].split('.')[2])
 		patch_version += 1
 		data[0]['Version'] = '.'.join(data[0]['Version'].split('.')[0:2]) + '.' + str(patch_version)
+		if args.dll:
+			data[0]['DLL'] = args.dll
 	else:
 		raise Exception(f"Something broke. \n{name} not found at data[0]['Name'] \ndata[0]['Name'] = {data[0]['Name']} \n{data=}")
 
