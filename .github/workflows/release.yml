@@ -1,4 +1,4 @@
-name: Release Build and Upload
+name: Release
 
 on:
   release:
@@ -17,6 +17,10 @@ jobs:
         uses: actions/setup-python@v4.1.0
         with:
           python-version: 3.10.5
+      
+      - name: Install Python Libraries
+        run: |
+          pip install pyyaml
 
       - name: Get Dependencies
         run: |
@@ -31,7 +35,12 @@ jobs:
         run: python "./.github/scripts/update-yml.py" -r -v "${{ github.event.release.tag_name }}" -dll "PuzzleHelper.dll"
       
       - name: Package Mod
-        run: Compress-Archive -Path "./Ahorn", "./bin/Release/PuzzleHelper.dll", "./everest.yaml" -DestinationPath "./PuzzleHelper.zip"
+        run: |
+          mkdir modfiles
+          Move-Item -Path "./Ahorn" -Destination "./modfiles"
+          Move-Item -Path "./Maps" -Destination "./modfiles"
+          Move-Item -Path "./bin/Release/PuzzleHelper.dll" -Destination "./modfiles"
+          Move-Item -Path "./everest.yaml" -Destination "./modfiles"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1.0.0
