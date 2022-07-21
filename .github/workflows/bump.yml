@@ -3,6 +3,8 @@ name: Bump Version
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - everest.yaml
 
 jobs:
   bump:
