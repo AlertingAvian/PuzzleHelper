@@ -30,6 +30,17 @@ jobs:
 
       - name: Build
         run: msbuild PuzzleHelper.sln /p:Configuration=Release
+      
+      - name: Set version
+        run: python "./.github/scripts/update-yml.py" -v "${{ github.event.release.tag_name }}"
+        
+      - name: Update Repository
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: everest.yaml
+          commit-msg: Bump mod version
+          branch: master
+          github-token: ${{ secrets.ACCESS_TOKEN }}
         
       - name: Update everest.yaml
         run: python "./.github/scripts/update-yml.py" -r -v "${{ github.event.release.tag_name }}" -dll "PuzzleHelper.dll"
