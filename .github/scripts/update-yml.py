@@ -29,10 +29,6 @@ if args.version:
 	if len(spl_version) != 3:
 		raise ValueError(f'Incorrect version format. Must be X.X.X (MAJOR.Minor.patch) not {args.version}')
 
-if args.dll:
-	if not exists(args.dll):
-		raise FileNotFoundError(f'File not found at {args.dll}')
-
 if args.release:
 	if not args.version:
 		raise Exception('Missing version. Version is required for release.')
