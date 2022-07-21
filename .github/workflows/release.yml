@@ -1,0 +1,41 @@
+name: Release Build and Upload
+
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          python-version: 3.10.5
+
+      - name: Get Dependencies
+        run: |
+          curl "${{ secrets.BUILDDEPS }}" -o "./download.zip"
+          mkdir "deps"
+          Expand-Archive -Path "./download.zip" -DestinationPath "./deps/"
+
+      - name: Build
+        run: msbuild PuzzleHelper.sln /p:Configuration=Release
+        
+      - name: Update everest.yaml
+        run: python "./.github/scripts/update-yml.py" -r -v "${{ github.event.release.tag_name }}" -dll "PuzzleHelper.dll"
+      
+      - name: Package Mod
+        run: Compress-Archive -Path "./Ahorn", "./bin/Release/PuzzleHelper.dll", "./everest.yaml" -DestinationPath "./PuzzleHelper.zip"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: PuzzleHelper
+          path: ./PuzzleHelper.zip
+      
