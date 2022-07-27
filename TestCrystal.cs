@@ -114,7 +114,7 @@ namespace Celeste.Mod.TestCrystal
                 return;
             }
 
-            if (swatTimer > 0f) // dont know what swat is yet TODO
+            if (swatTimer > 0f) // dont need
             {
                 swatTimer -= Engine.DeltaTime;
             }
@@ -138,7 +138,7 @@ namespace Celeste.Mod.TestCrystal
                     float target = ((!OnGround(Position + Vector2.UnitX * 3f)) ? 20f : (OnGround(Position - Vector2.UnitX * 3f) ? 0f : (-20f)));
                     Speed.X = Calc.Approach(Speed.X, target, 800f * Engine.DeltaTime);
                     Vector2 liftSpeed = base.LiftSpeed;
-                    if (liftSpeed == Vector2.Zero && prevLiftSpeed != Vector2.Zero)
+                    if (liftSpeed == Vector2.Zero && prevLiftSpeed != Vector2.Zero) // dont need to lift the block because it cant be held
                     {
                         Speed = prevLiftSpeed;
                         prevLiftSpeed = Vector2.Zero;
@@ -150,7 +150,7 @@ namespace Celeste.Mod.TestCrystal
 
                         if (Speed.Y < 0f)
                         {
-                            noGravityTimer = 0.15f;
+                            noGravityTimer = 0.15f; // also dont think there needs to be noGravity but dependes on intended behavior
                         }
                     }
                     else
@@ -188,9 +188,9 @@ namespace Celeste.Mod.TestCrystal
                 }
 
                 previousPosition = base.ExactPosition;
-                MoveH(Speed.X * Engine.DeltaTime, onCollideH);
-                MoveV(Speed.Y * Engine.DeltaTime, onCollideV);
-                if (base.Center.X > (float)Level.Bounds.Right)
+                MoveH(Speed.X * Engine.DeltaTime, onCollideH); // apply above calculated movements
+                MoveV(Speed.Y * Engine.DeltaTime, onCollideV); // looks like it only does movments for holding things here
+                if (base.Center.X > (float)Level.Bounds.Right) // the purpose of the below section is mildly confusing
                 {
                     MoveH(32f * Engine.DeltaTime);
                     if (base.Left - 8f > (float)Level.Bounds.Right)
@@ -208,13 +208,13 @@ namespace Celeste.Mod.TestCrystal
                     base.Top = Level.Bounds.Top + 4;
                     Speed.Y = 0f;
                 }
-                else if (base.Bottom > (float)Level.Bounds.Bottom && SaveData.Instance.Assists.Invincible)
+                else if (base.Bottom > (float)Level.Bounds.Bottom && SaveData.Instance.Assists.Invincible) // dont die on blelow level if invincible is on
                 {
                     base.Bottom = Level.Bounds.Bottom;
                     Speed.Y = -300f;
                     Audio.Play("event:/game/general/assist_screenbottom", Position);
                 }
-                else if (base.Top > (float)Level.Bounds.Bottom)
+                else if (base.Top > (float)Level.Bounds.Bottom)  // die if below level
                 {
                     Die();
                 }
@@ -226,7 +226,7 @@ namespace Celeste.Mod.TestCrystal
 
                 Player entity = base.Scene.Tracker.GetEntity<Player>();
                 TempleGate templeGate = CollideFirst<TempleGate>();
-                if (templeGate != null && entity != null) // probably dont need
+                if (templeGate != null && entity != null) // not sure if needed
                 {
                     templeGate.Collidable = false;
                     MoveH((float)(Math.Sign(entity.X - base.X) * 32) * Engine.DeltaTime);
@@ -239,12 +239,12 @@ namespace Celeste.Mod.TestCrystal
                 Hold.CheckAgainstColliders();
             }
 
-            if (hitSeeker != null && swatTimer <= 0f && !hitSeeker.Check(Hold))
+            if (hitSeeker != null && swatTimer <= 0f && !hitSeeker.Check(Hold)) // not needed
             {
                 hitSeeker = null;
             }
 
-            if (tutorialGui != null)
+            if (tutorialGui != null) // not needed
             {
                 if (!OnPedestal && !Hold.IsHeld && OnGround() && Level.Session.GetFlag("foundTheoInCrystal"))
                 {
@@ -336,7 +336,7 @@ namespace Celeste.Mod.TestCrystal
             }
         }
 
-        public bool HitSpring(Spring spring)
+        public bool HitSpring(Spring spring) // needed
         {
             if (!Hold.IsHeld)
             {
@@ -370,11 +370,10 @@ namespace Celeste.Mod.TestCrystal
             return false;
         }
 
-        private void OnCollideH(CollisionData data) 
+        private void OnCollideH(CollisionData data) // needed
             /*
-             * probably wont need
-             * could be implemented to move on x 
-             * but wont be for now
+             * we changed our mind
+             * we do need this
              */
         {
             if (data.Hit is DashSwitch) 
@@ -391,9 +390,9 @@ namespace Celeste.Mod.TestCrystal
             Speed.X *= -0.4f;
         }
 
-        private void OnCollideV(CollisionData data) 
+        private void OnCollideV(CollisionData data) // needed
         {
-            if (data.Hit is DashSwitch) // keep for triggering Dash Switches (i think)
+            if (data.Hit is DashSwitch) // keep for triggering Dash Switches
             {
                 (data.Hit as DashSwitch).OnDashCollide(null, Vector2.UnitY * Math.Sign(Speed.Y));
             }
@@ -416,7 +415,7 @@ namespace Celeste.Mod.TestCrystal
                 ImpactParticles(data.Direction);
             }
 
-            if (Speed.Y > 140f && !(data.Hit is SwapBlock) && !(data.Hit is DashSwitch)) // wont need, shouldn't be bouncing on anything but spring like things
+            if (Speed.Y > 140f && !(data.Hit is SwapBlock) && !(data.Hit is DashSwitch)) // should not bounce on any surface
             {
                 Speed.Y *= -0.6f;
             }
@@ -460,7 +459,7 @@ namespace Celeste.Mod.TestCrystal
             // probably wont try to figure out why because I won't be needing to do this
         }
 
-        public override bool IsRiding(Solid solid) // DO NEED
+        public override bool IsRiding(Solid solid) // needed
         {
             if (Speed.Y == 0f)
             {
