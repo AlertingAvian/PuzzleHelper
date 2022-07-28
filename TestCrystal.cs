@@ -343,7 +343,7 @@ namespace Celeste.Mod.TestCrystal
                 if (spring.Orientation == Spring.Orientations.Floor && Speed.Y >= 0f)
                 {
                     Speed.X *= 0.5f;
-                    Speed.Y = -160f;
+                    Speed.Y = -150f;
                     noGravityTimer = 0.15f;
                     return true;
                 }

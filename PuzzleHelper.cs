@@ -1,5 +1,5 @@
 ﻿using Monocle;
-using Microsoft.Xna.Framework;
+using System.Reflection;
 
 namespace Celeste.Mod.PuzzleHelper
 {
@@ -29,28 +29,18 @@ namespace Celeste.Mod.PuzzleHelper
             if(self is Spring spring)
             {
                 PuzzleBlockCollider puzzleBlockCollider = new PuzzleBlockCollider((block) => onBlock(block, spring));
-                Logger.Log(LogLevel.Debug, "PuzzleHelper", spring.Orientation.ToString());
-                switch (spring.Orientation)
-                {
-                    case Spring.Orientations.Floor:
-                        puzzleBlockCollider.Collider = new Hitbox(12f, 16f, -8f, -10f);
-                        break;
-                    case Spring.Orientations.WallLeft:
-                        puzzleBlockCollider.Collider = new Hitbox(12f, 16f, 0f, -8f);
-                        break;
-                    case Spring.Orientations.WallRight:
-                        puzzleBlockCollider.Collider = new Hitbox(12f, 16f, -12f, -8f);
-                        break;
-                }
-                Logger.Log(LogLevel.Debug, "PuzzleHelper", puzzleBlockCollider.OnCollide.ToString());
-               spring.Add(puzzleBlockCollider);
+                spring.Add(puzzleBlockCollider);
             }
             orig(self, scene);
         }
 
         private void onBlock(PuzzleBlock block, Spring spring)
         {
-            block.HitSpring(spring);
+            if(block.HitSpring(spring))
+            {
+                typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(spring, null);
+            }
+            
         }
     }
 }
