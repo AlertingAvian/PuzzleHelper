@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Reflection;
 
 namespace Celeste.Mod.PuzzleHelper
 {
@@ -13,8 +14,6 @@ namespace Celeste.Mod.PuzzleHelper
         private bool ignoreJumpThrus; // i have this for some reason, I don't know why
         private float noGravityTimer; // how long before reducing Y speed modifier
         private Vector2 speed; // speed calculated in update because base class Speed doesn't do anything
-        private Platform lastCollideV; // used in the hacky dash switch triggerer
-        private Platform lastCollideH; // added when the above one was added probably wont need but probably wont hurt
         private int number; // a number that iterates with update so I don't spam the log file. as much.
 
         public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool IgnoreJumpThrus)
@@ -99,36 +98,16 @@ namespace Celeste.Mod.PuzzleHelper
                     moveSpeed.X += 5f;
                 }
             }
-
-            if(speed.Y == 0f && HasStartedFalling && !(lastCollideV is SolidTiles)) // hacky way to get it to trigger the dash switches. there is a better way
-            {
-                if (number % 20 == 0) // more log spam, not as useful as the above one
-                {
-                    Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"{speed.Y}, {HasStartedFalling}");
-                }
-                MoveVCollideSolids(10 * Engine.DeltaTime, thruDashBlocks, OnCollideV);
-            }
-
         }
 
         private void OnCollideH(Vector2 x1, Vector2 x2, Platform platform)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideH: {x1}, {x2}, {platform}"); // actually useful information to see what the collisions are will only be called if the the move in this update is doing the moving though
-            lastCollideH = platform;
-            if(platform is DashSwitch)
-            {
-                (platform as DashSwitch).OnDashed(null, x1);
-            }
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideH: {x1}, {x2}, {platform}"); // actually useful information to see what the collisions are will only be called if the the move in this update is doing the moving though
         }
 
         private void OnCollideV(Vector2 x1, Vector2 x2, Platform platform)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideV: {x1}, {x2}, {platform}"); // see above comment
-            lastCollideV = platform;
-            if (platform is DashSwitch)
-            {
-                (platform as DashSwitch).OnDashed(null, x1);
-            }
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideV: {x1}, {x2}, {platform}"); // see above comment
         }
 
         public bool HitSpring(Spring spring) // called by spring when it hits a spring.
@@ -161,6 +140,46 @@ namespace Celeste.Mod.PuzzleHelper
 
                     return false;
             }
+        }
+
+        public void HitDashSwitch(DashSwitch dashSwitch)
+        {
+            Vector2 dir = Vector2.Zero;
+            FieldInfo field = typeof(DashSwitch).GetField("side", BindingFlags.NonPublic 
+                                                                | BindingFlags.Instance);
+            DashSwitch.Sides? side = field.GetValue(dashSwitch) as DashSwitch.Sides?;
+            if (side == null)
+            {
+                Logger.Log(LogLevel.Warn, "PuzzleHelper", "Unable to retrive DashSwitch side");
+            }
+            switch (side)
+            {
+                case DashSwitch.Sides.Left:
+                    if(speed.X < 0)
+                    {
+                        dir = new Vector2(-1, 0);
+                    }                    
+                    break;
+                case DashSwitch.Sides.Right:
+                    if(speed.X < 0)
+                    {
+                        dir = new Vector2(1, 0);
+                    }
+                    break;
+                case DashSwitch.Sides.Up:
+                    if(speed.Y < 0)
+                    {
+                        dir = new Vector2(0, -1);
+                    }                    
+                    break;
+                case DashSwitch.Sides.Down:
+                    if(speed.Y > 0)
+                    {
+                        dir = new Vector2(0, 1);
+                    }
+                    break;
+            }
+            dashSwitch.OnDashCollide(null, dir);
         }
     }
 }
