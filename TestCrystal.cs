@@ -16,7 +16,7 @@ namespace Celeste.Mod.TestCrystal
     [CustomEntity("PuzzleHelper/TestCrystal")]
     public class TestCrystal : Actor
     {
-        
+
         public static ParticleType P_Impact; // dont need
 
         public Vector2 Speed;
@@ -81,8 +81,8 @@ namespace Celeste.Mod.TestCrystal
             Add(new MirrorReflection());
         }
 
-    public TestCrystal(EntityData e, Vector2 offset)
-            : this(e.Position + offset)
+        public TestCrystal(EntityData e, Vector2 offset)
+                : this(e.Position + offset)
         {
         }
 
@@ -371,12 +371,12 @@ namespace Celeste.Mod.TestCrystal
         }
 
         private void OnCollideH(CollisionData data) // needed
-            /*
-             * we changed our mind
-             * we do need this
-             */
+        /*
+         * we changed our mind
+         * we do need this
+         */
         {
-            if (data.Hit is DashSwitch) 
+            if (data.Hit is DashSwitch)
             {
                 (data.Hit as DashSwitch).OnDashCollide(null, Vector2.UnitX * Math.Sign(Speed.X));
             }

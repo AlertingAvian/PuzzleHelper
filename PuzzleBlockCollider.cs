@@ -19,15 +19,15 @@ namespace Celeste.Mod.PuzzleHelper
 
         public void Check(PuzzleBlock block)
         {
-            if(OnCollide != null)
+            if (OnCollide != null)
             {
                 Collider collider = base.Entity.Collider;
-                if(Collider != null)
+                if (Collider != null)
                 {
                     base.Entity.Collider = Collider;
                 }
 
-                if(block.CollideCheck(base.Entity))
+                if (block.CollideCheck(base.Entity))
                 {
                     OnCollide(block);
                 }
