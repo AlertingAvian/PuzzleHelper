@@ -24,8 +24,8 @@ namespace Celeste.Mod.PuzzleHelper
         public PuzzleBlock(Vector2 position, char tile, int width, int height, bool finalBoss, bool behind, bool climbFall, bool IgnoreJumpThrus)
             : base(position, tile, width, height, finalBoss, behind, climbFall)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", "New instance of PuzzleBlock");
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"IngoreJumpThrus: {ignoreJumpThrus}");
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", "New instance of PuzzleBlock");
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"IngoreJumpThrus: {ignoreJumpThrus}");
             ignoreJumpThrus = IgnoreJumpThrus;
             thruDashBlocks = true; // I just leave this as false for now, if I take the time to figure out what it does I will probably add it as an option in Ahorn
             lastPosition = base.ExactPosition; // setting first lastPosition
@@ -43,7 +43,7 @@ namespace Celeste.Mod.PuzzleHelper
 
         private void onJumpThruCollide(JumpThru jumpThru) // don't know why i have this
         {
-            Logger.Log(LogLevel.Debug, "PuzzleHelepr", jumpThru.ToString()); // pretty sure i dont need to do anything here
+            //Logger.Log(LogLevel.Debug, "PuzzleHelepr", jumpThru.ToString()); // pretty sure i dont need to do anything here
         }
 
         public override void Update() // refactor this to be a little bit more DRY
@@ -68,7 +68,7 @@ namespace Celeste.Mod.PuzzleHelper
             // spam log useful information
             if (number % 10 == 0)
             {
-                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Gravity Timer: {noGravityTimer}, Speed: {speed}, Speed Modifier: {moveSpeed}");
+                //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Gravity Timer: {noGravityTimer}, Speed: {speed}, Speed Modifier: {moveSpeed}");
             }
             number++;
 
@@ -123,15 +123,15 @@ namespace Celeste.Mod.PuzzleHelper
 
         private void OnCollideH(Vector2 x1, Vector2 x2, Platform platform)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideH: {x1}, {x2}, {platform}"); // actually useful information to see what the collisions are will only be called if the the move in this update is doing the moving though
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideH: {x1}, {x2}, {platform}"); // actually useful information to see what the collisions are will only be called if the the move in this update is doing the moving though
         }
 
         private void OnCollideV(Vector2 x1, Vector2 x2, Platform platform)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideV: {x1}, {x2}, {platform}"); // see above comment
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"OnCollideV: {x1}, {x2}, {platform}"); // see above comment
             if(platform is JumpThru)
             {
-                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"platform {platform} is JumpThru");
+                //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"platform {platform} is JumpThru");
                 Add(new Coroutine(jumpThruMove(platform as JumpThru)));
             }
         }
@@ -157,13 +157,13 @@ namespace Celeste.Mod.PuzzleHelper
             {
                 return false;
             }
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"{this} is riding jumpthru");
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"{this} is riding jumpthru");
             return CollideCheckOutside(jumpThru, Position + Vector2.UnitY);
         }
 
         public bool IsRiding(Solid solid)
         {
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"{this} is riding solid");
+            //Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"{this} is riding solid");
             return CollideCheck(solid, Position + Vector2.UnitY);
         }
 
@@ -207,7 +207,7 @@ namespace Celeste.Mod.PuzzleHelper
             DashSwitch.Sides? side = field.GetValue(dashSwitch) as DashSwitch.Sides?;
             if (side == null)
             {
-                Logger.Log(LogLevel.Warn, "PuzzleHelper", "Unable to retrive DashSwitch side");
+                //Logger.Log(LogLevel.Warn, "PuzzleHelper", "Unable to retrive DashSwitch side");
             }
             if (HasStartedFalling)
             {
