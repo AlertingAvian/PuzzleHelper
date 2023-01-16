@@ -4,7 +4,7 @@ on:
   push:
     paths-ignore:
       - everest.yaml
-      - .github/
+      - .github/**
       - .gitignore
       - .gitattributes
       - LICENSE.txt
