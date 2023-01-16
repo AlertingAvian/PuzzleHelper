@@ -5,7 +5,7 @@ on:
     branches: [ master ]
     paths-ignore:
       - everest.yaml
-      - .github/
+      - .github/**
       - .gitignore
       - .gitattributes
       - LICENSE.txt
