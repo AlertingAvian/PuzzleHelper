@@ -3,12 +3,13 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Celeste.Mod.PuzzleHelper
 {
     [Tracked]
-    [CustomEntity("PuzzleHelper/PuzzleFallingBlockNEW")]
+    [CustomEntity("PuzzleHelper/PuzzleFallingBlock")]
     public class PuzzleFallingBlock : Solid
     {
         public static ParticleType P_FallDustA => FallingBlock.P_FallDustA;
@@ -21,6 +22,14 @@ namespace Celeste.Mod.PuzzleHelper
 
         public bool OtherTrigger;
 
+        private bool triggerDashSwitches;
+
+        private bool bounceOnSprings;
+
+        private float springHorizontalForce;
+        private float springVerticalForce;
+        private float springVerticalPercent;
+
         public float FallDelay;
 
         public bool HasStartedFalling { get; private set; }
@@ -30,10 +39,17 @@ namespace Celeste.Mod.PuzzleHelper
 
         private bool climbFall;
 
-        public PuzzleFallingBlock(EntityData data, Vector2 offset, int width, int height, bool safe, char tile, bool behind, bool climbFall, bool triggerOthers) : base(data.Position + offset, (float)width, (float)height, safe)
+        private Vector2 springModifier = Vector2.Zero;
+
+        public PuzzleFallingBlock(EntityData data, Vector2 offset, int width, int height, bool safe, char tile, bool behind, bool climbFall, bool triggerOthers, bool triggerDashSwitches, bool bounceOnSprings, float springHorizontalForce, float springVerticalForce, float springVerticalPercent) : base(data.Position + offset, (float)width, (float)height, safe)
         {
             this.climbFall = climbFall;
             this.TriggerOthers = triggerOthers;
+            Hitbox blockTrigger = new Hitbox(Width, 1f, 0, -1);
+            PuzzleFallingBlockCollider puzzleFallingBlockCollider = new PuzzleFallingBlockCollider(OnPuzzleFallingBlockCollide);
+            puzzleFallingBlockCollider.Collider = blockTrigger;
+            Add(puzzleFallingBlockCollider);
+
 
             Add(tiles = GFX.FGAutotiler.GenerateBox(tile, width / 8, height / 8).TileGrid);
             tileType = tile;
@@ -49,11 +65,37 @@ namespace Celeste.Mod.PuzzleHelper
             {
                 base.Depth = 5000;
             }
+            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"h: {springHorizontalForce}");
+            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"v: {springVerticalForce}");
+            this.triggerDashSwitches = triggerDashSwitches;
+            this.bounceOnSprings = bounceOnSprings;
+            this.springHorizontalForce = springHorizontalForce;
+            this.springVerticalForce = springVerticalForce;
+            this.springVerticalPercent = springVerticalPercent;
         }
 
-        public PuzzleFallingBlock(EntityData data, Vector2 offset) : this(data, offset, data.Width, data.Height, data.Bool("safe", true), data.Char("tiletype", '3'), data.Bool("behind", false), data.Bool("climbFall", true), data.Bool("triggerOthers", false))
+        public PuzzleFallingBlock(EntityData data, Vector2 offset) : this(data, offset, data.Width, data.Height, data.Bool("safe", true), data.Char("tiletype", '3'), data.Bool("behind", false), data.Bool("climbFall", true), data.Bool("triggerOthers", false), data.Bool("triggerDashSwitches", true), data.Bool("springBounce", true), data.Float("springHorizontal", 120f), data.Float("springVertical"), data.Float("springVerticalPercent", 30f))
         {
             // dont need to do anything here
+        }
+
+        public override void Awake(Scene scene)
+        {
+            base.Awake(scene);
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            foreach (PuzzleFallingBlockCollider component in SceneAs<Level>().Tracker.GetComponents<PuzzleFallingBlockCollider>()) // run check on all of the Colliders in the scene
+            {
+                if (component.Entity != this)
+                {
+                    component.Check(this);
+                }
+            }
+            springModifier.X = Calc.Approach(springModifier.X, 0, 5);
+            springModifier.Y = Calc.Approach(springModifier.Y, 0, 5);
         }
 
         public override void OnShake(Vector2 amount)
@@ -99,6 +141,14 @@ namespace Celeste.Mod.PuzzleHelper
             }
 
             return false;
+        }
+
+        private void OnPuzzleFallingBlockCollide(PuzzleFallingBlock block)
+        {
+            if (block.HasStartedFalling && block.TriggerOthers)
+            {
+                this.OtherTrigger = true;
+            }
         }
 
         private IEnumerator Sequence()
@@ -148,23 +198,17 @@ namespace Celeste.Mod.PuzzleHelper
                 {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, maxSpeed, maxMove * Engine.DeltaTime);
-                    if (MoveVCollideSolids(speed * Engine.DeltaTime, thruDashBlocks: true))
+                    Logger.Log(LogLevel.Verbose, "PuzleHelper", $"Modifier: {springModifier}");
+                    if (MoveVCollideSolids((speed * Engine.DeltaTime) + (springModifier.Y * Engine.DeltaTime), thruDashBlocks: true))
                     {
-                        if (TriggerOthers)
-                        {
-                            PuzzleFallingBlock other = SceneAs<Level>().CollideFirst<PuzzleFallingBlock>(base.BottomCenter + new Vector2(0f, 1f)); // only will trigger the other if it collides with the center of falling one. possible issue.
-                            if (other != null)
-                            {
-                                if (!other.OtherTrigger)
-                                {
-                                    other.OtherTrigger = true;
-                                    continue;
-                                }
-                            }
-                        }
-                        
                         break;
                     }
+
+                    if (MoveHCollideSolids(springModifier.X * Engine.DeltaTime, thruDashBlocks: true))
+                    {
+
+                    }
+
 
                     if (Top > (float)(level.Bounds.Bottom + 16) || (Top > (float)(level.Bounds.Bottom - 1) && CollideCheck<Solid>(Position + new Vector2(0f, 1f))))
                     {
@@ -257,6 +301,83 @@ namespace Celeste.Mod.PuzzleHelper
             else
             {
                 Audio.Play("event:/game/general/fallblock_impact", base.BottomCenter);
+            }
+        }
+
+        public void HitDashSwitch(DashSwitch dashSwitch)
+        {
+            if (triggerDashSwitches)
+            {
+                Vector2 dir = Vector2.Zero;
+                FieldInfo field = typeof(DashSwitch).GetField("side", BindingFlags.NonPublic
+                                                                    | BindingFlags.Instance);
+                DashSwitch.Sides? side = field.GetValue(dashSwitch) as DashSwitch.Sides?;
+                if (side == null)
+                {
+                    Logger.Log(LogLevel.Warn, "PuzzleHelper", "Unable to retrive DashSwitch side");
+                }
+                if (HasStartedFalling)
+                {
+                    switch (side)
+                    {
+                        case DashSwitch.Sides.Left:
+                            dir = new Vector2(-1, 0);
+                            break;
+                        case DashSwitch.Sides.Right:
+                            dir = new Vector2(1, 0);
+                            break;
+                        case DashSwitch.Sides.Up:
+                            dir = new Vector2(0, -1);
+                            break;
+                        case DashSwitch.Sides.Down:
+                            dir = new Vector2(0, 1);
+                            break;
+                    }
+                }
+                dashSwitch.OnDashCollide(null, dir);
+            }
+        }
+
+        public bool HitSpring(Spring spring) // called by spring when it hits a spring.
+        {
+            if (!bounceOnSprings)
+            {
+                return false;
+            }
+            switch (spring.Orientation)
+            {
+                default:
+                    if (Speed.Y >= 0f)
+                    {
+                        typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic
+                                                        | BindingFlags.Instance).Invoke(spring, null);
+                        springModifier.Y += -springVerticalForce;
+                        return true;
+                    }
+
+                    return false;
+                case Spring.Orientations.WallLeft:
+                    if (Speed.X <= 60f)
+                    {
+                        typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic
+                                                        | BindingFlags.Instance).Invoke(spring, null);
+                        springModifier.Y += -(springVerticalForce * (springVerticalPercent / 100f));
+                        springModifier.X += springHorizontalForce;
+                        return true;
+                    }
+
+                    return false;
+                case Spring.Orientations.WallRight:
+                    if (Speed.X >= -60f)
+                    {
+                        typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic
+                                                        | BindingFlags.Instance).Invoke(spring, null);
+                        springModifier.Y += -(springVerticalForce * (springVerticalPercent/100f));
+                        springModifier.X += -springHorizontalForce;
+                        return true;
+                    }
+
+                return false;
             }
         }
     }

@@ -2,14 +2,19 @@ local fakeTilesHelper = require("helpers.fake_tiles")
 
 local CustomEntity = {}
 
-CustomEntity.name = "PuzzleHelper/PuzzleFallingBlockNEW"
+CustomEntity.name = "PuzzleHelper/PuzzleFallingBlock"
 CustomEntity.placements =  {
-    name = "PuzzleHelper/PuzzleFallingBlockNEW",
+    name = "PuzzleHelper/PuzzleFallingBlock",
     data = {
         tiletype = "3",
         behind = false,
         climbFall = true,
         triggerOthers = false,
+        triggerDashSwitches = true,
+        springBounce = true,
+        springHorizontal = 120.0,
+        springVertical = 350.0,
+        springVerticalPercent = 30.0,
         width = 8,
         height = 8
     }

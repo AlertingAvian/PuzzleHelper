@@ -4,20 +4,20 @@ using System;
 namespace Celeste.Mod.PuzzleHelper
 {
     [Tracked]
-    public class PuzzleBlockCollider : Component
+    public class PuzzleFallingBlockCollider : Component
     {
-        public Action<PuzzleBlock> OnCollide;
+        public Action<PuzzleFallingBlock> OnCollide;
 
         public Collider Collider;
 
-        public PuzzleBlockCollider(Action<PuzzleBlock> onCollide, Collider collider = null)
+        public PuzzleFallingBlockCollider(Action<PuzzleFallingBlock> onCollide, Collider collider = null)
             : base(active: false, visible: false)
         {
             OnCollide = onCollide;
             Collider = null;
         }
 
-        public void Check(PuzzleBlock block)
+        public void Check(PuzzleFallingBlock block)
         {
             if (OnCollide != null)
             {

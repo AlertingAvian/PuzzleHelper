@@ -56,9 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PuzzleBlock.cs" />
-    <Compile Include="PuzzleBlockCollider.cs" />
     <Compile Include="PuzzleFallingBlock.cs" />
+    <Compile Include="PuzzleFallingBlockCollider.cs" />
     <Compile Include="PuzzleHelper.cs" />
     <Compile Include="TestCrystal.cs" />
   </ItemGroup>
