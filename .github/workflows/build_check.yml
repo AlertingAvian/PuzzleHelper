@@ -1,0 +1,33 @@
+name: Build Check
+
+on:
+  push:
+    paths-ignore:
+      - everest.yaml
+      - .github/**
+      - .gitignore
+      - .gitattributes
+      - LICENSE.txt
+      - README.md
+  pull_request:
+    branches-ignore:
+     - dev-**
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Get Dependencies
+        run: |
+          curl "${{ secrets.BUILDDEPS }}" -o "./download.zip"
+          mkdir "deps"
+          Expand-Archive -Path "./download.zip" -DestinationPath "./deps/"
+      - name: Build
+        run: msbuild PuzzleHelper.sln /p:Configuration=Release
+        
