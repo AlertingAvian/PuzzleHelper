@@ -3,7 +3,7 @@ using System;
 
 namespace Celeste.Mod.PuzzleHelper
 {
-    [Tracked]
+    [Tracked(false)]
     public class PuzzleFallingBlockCollider : Component
     {
         public Action<PuzzleFallingBlock> OnCollide;

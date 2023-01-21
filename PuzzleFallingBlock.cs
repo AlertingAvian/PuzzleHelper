@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Celeste.Mod.PuzzleHelper
@@ -20,6 +19,8 @@ namespace Celeste.Mod.PuzzleHelper
 
         public bool TriggerOthers { get; private set; }
 
+        public PuzzleFallingBlockActorWrapper Wrapper { get; private set; }
+
         public bool OtherTrigger;
 
         private bool triggerDashSwitches;
@@ -33,6 +34,8 @@ namespace Celeste.Mod.PuzzleHelper
         public float FallDelay;
 
         public bool HasStartedFalling { get; private set; }
+
+        public bool IgnoreJumpThrus = false; // default to false for now.
 
         private char tileType;
         private TileGrid tiles;
@@ -65,13 +68,13 @@ namespace Celeste.Mod.PuzzleHelper
             {
                 base.Depth = 5000;
             }
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"h: {springHorizontalForce}");
-            Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"v: {springVerticalForce}");
             this.triggerDashSwitches = triggerDashSwitches;
             this.bounceOnSprings = bounceOnSprings;
             this.springHorizontalForce = springHorizontalForce;
             this.springVerticalForce = springVerticalForce;
             this.springVerticalPercent = springVerticalPercent;
+            
+            Wrapper = new PuzzleFallingBlockActorWrapper(this);
         }
 
         public PuzzleFallingBlock(EntityData data, Vector2 offset) : this(data, offset, data.Width, data.Height, data.Bool("safe", true), data.Char("tiletype", '3'), data.Bool("behind", false), data.Bool("climbFall", true), data.Bool("triggerOthers", false), data.Bool("triggerDashSwitches", true), data.Bool("springBounce", true), data.Float("springHorizontal", 120f), data.Float("springVertical"), data.Float("springVerticalPercent", 30f))
@@ -82,6 +85,7 @@ namespace Celeste.Mod.PuzzleHelper
         public override void Awake(Scene scene)
         {
             base.Awake(scene);
+            scene.Add(Wrapper);
         }
 
         public override void Update()
@@ -94,8 +98,18 @@ namespace Celeste.Mod.PuzzleHelper
                     component.Check(this);
                 }
             }
-            springModifier.X = Calc.Approach(springModifier.X, 0, 5);
-            springModifier.Y = Calc.Approach(springModifier.Y, 0, 5);
+            springModifier.X = Calc.Approach(springModifier.X, 0, 300f * Engine.DeltaTime);
+            springModifier.Y = Calc.Approach(springModifier.Y, 0, 300f * Engine.DeltaTime);
+
+            Wrapper.Position = Position;
+            if (Position.X != Wrapper.Position.X)
+            {
+                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Pos X mismatch -> block: {Position.X}, wrapper: {Wrapper.Position.X}, diff: {Position.X - Wrapper.Position.X}");
+            }
+            if (Position.Y != Wrapper.Position.Y)
+            {
+                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Pos Y mismatch -> block: {Position.Y}, wrapper: {Wrapper.Position.Y}, diff: {Position.Y - Wrapper.Position.Y}");
+            }
         }
 
         public override void OnShake(Vector2 amount)
@@ -151,6 +165,21 @@ namespace Celeste.Mod.PuzzleHelper
             }
         }
 
+        public virtual bool IsRiding(JumpThru jumpThru)
+        {
+            if (IgnoreJumpThrus)
+            {
+                return false;
+            }
+
+            return CollideCheckOutside(jumpThru, Position + Vector2.UnitY);
+        }
+
+        public virtual bool IsRiding(Solid solid)
+        {
+            return CollideCheck(solid, Position + Vector2.UnitY);
+        }
+
         private IEnumerator Sequence()
         {
             while (!Triggered && !PlayerFallCheck() && !OtherTrigger)
@@ -198,7 +227,6 @@ namespace Celeste.Mod.PuzzleHelper
                 {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, maxSpeed, maxMove * Engine.DeltaTime);
-                    Logger.Log(LogLevel.Verbose, "PuzleHelper", $"Modifier: {springModifier}");
                     if (MoveVCollideSolids((speed * Engine.DeltaTime) + (springModifier.Y * Engine.DeltaTime), thruDashBlocks: true))
                     {
                         break;
