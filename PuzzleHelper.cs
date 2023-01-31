@@ -3,7 +3,6 @@ using Monocle;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using static Celeste.DashSwitch;
 
 namespace Celeste.Mod.PuzzleHelper
 {
@@ -45,26 +44,33 @@ namespace Celeste.Mod.PuzzleHelper
         private void modGetRiders(On.Celeste.Solid.orig_GetRiders orig, Solid self)
         {
             HashSet<Actor> riders = new HashSet<Actor>();
-            if (!(self is PuzzleFallingBlock))
-            {
-                foreach (PuzzleFallingBlock entity in self.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
-                {
-                    if (!(self == entity))
-                    {
-                        if (entity.IsRiding(self as Solid))
-                        {
-                            riders.Add(entity.Wrapper);
-                        }
-                    }
-                }
-            }
+            //foreach (PuzzleFallingBlock entity in self.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
+            //{
+            //    if (self is PuzzleFallingBlock block)
+            //    {
+            //        if (entity == block)
+            //        {
+            //            continue;
+            //        }
+            //        else
+            //        {
+            //            if (entity.IsRiding(block))
+            //            {
+            //                riders.Add(entity.Wrapper);
+            //            }
+            //        }
+            //    }
+            //}
             foreach (Actor entity in self.Scene.Tracker.GetEntities<Actor>())
             { 
-                if (self is PuzzleFallingBlock && entity is PuzzleFallingBlockActorWrapper)
+                if (self is PuzzleFallingBlock block && entity is PuzzleFallingBlockActorWrapper)
                 {
-                    continue;
+                    if (entity == block.Wrapper)
+                    {
+                        continue;
+                    }
                 }
-                if (entity.IsRiding(self as Solid))
+                if (entity.IsRiding(self))
                 {
                     riders.Add(entity);
                 }
@@ -134,11 +140,11 @@ namespace Celeste.Mod.PuzzleHelper
 
         private void modSolidMoveHExact(On.Celeste.Solid.orig_MoveHExact orig, Solid self, int move)
         {
+            self.GetRiders();
             FieldInfo field = typeof(Solid).GetField("riders", BindingFlags.NonPublic
                                                              | BindingFlags.Instance
                                                              | BindingFlags.Static);
             HashSet<Actor> riders = field.GetValue(self) as HashSet<Actor>;
-            self.GetRiders();
             float right = self.Right;
             float left = self.Left;
             Player player = null;
@@ -201,11 +207,11 @@ namespace Celeste.Mod.PuzzleHelper
 
         private void modSolidMoveVExact(On.Celeste.Solid.orig_MoveVExact orig, Solid self, int move)
         {
+            self.GetRiders();
             FieldInfo field = typeof(Solid).GetField("riders", BindingFlags.NonPublic
                                                              | BindingFlags.Instance
                                                              | BindingFlags.Static);
             HashSet<Actor> riders = field.GetValue(self) as HashSet<Actor>;
-            self.GetRiders();
             float bottom = self.Bottom;
             float top = self.Top;
             self.Y += move;
@@ -220,7 +226,7 @@ namespace Celeste.Mod.PuzzleHelper
                         {
                             continue;
                         }
-                    }
+                    }                                      // to here
                     if (!entity.AllowPushing)
                     {
                         continue;

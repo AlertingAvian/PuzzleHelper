@@ -366,7 +366,7 @@ namespace Celeste.Mod.PuzzleHelper
             }
         }
 
-        public bool HitSpring(Spring spring) // called by spring when it hits a spring.
+        public bool HitSpring(Spring spring)
         {
             if (!bounceOnSprings)
             {
