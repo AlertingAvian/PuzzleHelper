@@ -33,7 +33,11 @@ namespace Celeste.Mod.PuzzleHelper
 
         public override bool IsRiding(Solid solid)
         {
-            return block.IsRiding(solid);
+            if (!(solid is PuzzleFallingBlock))
+            {
+                return block.IsRiding(solid);
+            }
+            return false;
         }
     }
 }

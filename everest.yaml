@@ -1,6 +1,6 @@
 - Name: PuzzleHelper
-  Version: v1.0.0-rc1
+  Version: 1.0.0
   DLL: bin/Debug/PuzzleHelper.dll
   Dependencies:
-  - Name: Everest
-    Verison: 1.3366.0
+    - Name: Everest
+      Verison: 1.3366.0
