@@ -28,16 +28,12 @@ namespace Celeste.Mod.PuzzleHelper
 
         public override bool IsRiding(JumpThru jumpThru)
         {
-            return base.IsRiding(jumpThru);
+            return block.IsRiding(jumpThru);
         }
 
         public override bool IsRiding(Solid solid)
         {
-            if (solid == block)
-            {
-                return false;
-            }
-            return base.IsRiding(solid);
+            return block.IsRiding(solid);
         }
     }
 }

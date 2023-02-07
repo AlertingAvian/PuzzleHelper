@@ -98,6 +98,11 @@ namespace Celeste.Mod.PuzzleHelper
                     component.Check(this);
                 }
             }
+            if (HasStartedFalling)
+            {
+                MoveHCollideSolids(springModifier.X * Engine.DeltaTime, true);
+                MoveVCollideSolids(springModifier.Y * Engine.DeltaTime, true);
+            }
             springModifier.X = Calc.Approach(springModifier.X, 0, 300f * Engine.DeltaTime);
             springModifier.Y = Calc.Approach(springModifier.Y, 0, 300f * Engine.DeltaTime);
 
@@ -165,8 +170,21 @@ namespace Celeste.Mod.PuzzleHelper
             }
         }
 
+        private bool isSpringed()
+        {
+            if (springModifier.X != 0 || springModifier.Y != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public virtual bool IsRiding(JumpThru jumpThru)
         {
+            if (isSpringed() || !HasStartedFalling)
+            {
+                return false;
+            }
             if (IgnoreJumpThrus)
             {
                 return false;
@@ -177,6 +195,10 @@ namespace Celeste.Mod.PuzzleHelper
 
         public virtual bool IsRiding(Solid solid)
         {
+            if (isSpringed() || !HasStartedFalling)
+            {
+                return false;
+            }
             return CollideCheck(solid, Position + Vector2.UnitY);
         }
 
@@ -227,15 +249,15 @@ namespace Celeste.Mod.PuzzleHelper
                 {
                     Level level = SceneAs<Level>();
                     speed = Calc.Approach(speed, maxSpeed, maxMove * Engine.DeltaTime);
-                    if (MoveVCollideSolids((speed * Engine.DeltaTime) + (springModifier.Y * Engine.DeltaTime), thruDashBlocks: true))
+                    if (MoveVCollideSolids((speed * Engine.DeltaTime), thruDashBlocks: true))
                     {
                         break;
                     }
 
-                    if (MoveHCollideSolids(springModifier.X * Engine.DeltaTime, thruDashBlocks: true))
-                    {
+                    //if (MoveHCollideSolids(springModifier.X * Engine.DeltaTime, thruDashBlocks: true))
+                    //{
 
-                    }
+                    //}
 
 
                     if (Top > (float)(level.Bounds.Bottom + 16) || (Top > (float)(level.Bounds.Bottom - 1) && CollideCheck<Solid>(Position + new Vector2(0f, 1f))))
@@ -400,11 +422,10 @@ namespace Celeste.Mod.PuzzleHelper
                     {
                         typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic
                                                         | BindingFlags.Instance).Invoke(spring, null);
-                        springModifier.Y += -(springVerticalForce * (springVerticalPercent/100f));
+                        springModifier.Y += -(springVerticalForce * (springVerticalPercent / 100f));
                         springModifier.X += -springHorizontalForce;
                         return true;
                     }
-
                 return false;
             }
         }

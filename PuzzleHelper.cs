@@ -21,65 +21,25 @@ namespace Celeste.Mod.PuzzleHelper
             Logger.Log(LogLevel.Debug, "PuzzleHelper", "Load");
             On.Monocle.Entity.Awake += modAwake;
             On.Celeste.Solid.HasRider += modHasRider;
-            On.Celeste.Solid.GetRiders += modGetRiders;
             On.Celeste.Actor.MoveVExact += modActorMoveVExact;
             On.Celeste.Actor.MoveHExact += modActorMoveHExact;
             On.Celeste.Solid.MoveHExact += modSolidMoveHExact;
             On.Celeste.Solid.MoveVExact += modSolidMoveVExact;
-
+            On.Celeste.SinkingPlatform.Update += modSinkingPlatformUpdate;
         }
 
         public override void Unload()
         {
             On.Monocle.Entity.Awake -= modAwake;
             On.Celeste.Solid.HasRider -= modHasRider;
-            On.Celeste.Solid.GetRiders -= modGetRiders;
             On.Celeste.Actor.MoveVExact -= modActorMoveVExact;
             On.Celeste.Actor.MoveHExact -= modActorMoveHExact;
             On.Celeste.Solid.MoveHExact -= modSolidMoveHExact;
             On.Celeste.Solid.MoveVExact -= modSolidMoveVExact;
+            On.Celeste.SinkingPlatform.Update -= modSinkingPlatformUpdate;
 
         }
 
-        private void modGetRiders(On.Celeste.Solid.orig_GetRiders orig, Solid self)
-        {
-            HashSet<Actor> riders = new HashSet<Actor>();
-            //foreach (PuzzleFallingBlock entity in self.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
-            //{
-            //    if (self is PuzzleFallingBlock block)
-            //    {
-            //        if (entity == block)
-            //        {
-            //            continue;
-            //        }
-            //        else
-            //        {
-            //            if (entity.IsRiding(block))
-            //            {
-            //                riders.Add(entity.Wrapper);
-            //            }
-            //        }
-            //    }
-            //}
-            foreach (Actor entity in self.Scene.Tracker.GetEntities<Actor>())
-            { 
-                if (self is PuzzleFallingBlock block && entity is PuzzleFallingBlockActorWrapper)
-                {
-                    if (entity == block.Wrapper)
-                    {
-                        continue;
-                    }
-                }
-                if (entity.IsRiding(self))
-                {
-                    riders.Add(entity);
-                }
-            }
-            FieldInfo field = typeof(Solid).GetField("riders", BindingFlags.NonPublic
-                                                             | BindingFlags.Instance
-                                                             | BindingFlags.Static);
-            field.SetValue(self, riders);
-        }
 
         private bool modHasRider(On.Celeste.Solid.orig_HasRider orig, Entity self)
         {
@@ -269,7 +229,6 @@ namespace Celeste.Mod.PuzzleHelper
         {
             if (self is PuzzleFallingBlockActorWrapper wrapper)
             {
-                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Move H amount: {move}");
                 wrapper.block.MoveHExactCollideSolids(move, thruDashBlocks: true);
                 Solid solid = wrapper.CollideFirst<Solid>(wrapper.Position + Vector2.UnitX * Math.Sign(move));
                 if (solid != null)
@@ -291,7 +250,6 @@ namespace Celeste.Mod.PuzzleHelper
         {
             if (self is PuzzleFallingBlockActorWrapper wrapper)
             {
-                Logger.Log(LogLevel.Verbose, "PuzzleHelper", $"Move V amount: {move}");
                 wrapper.block.MoveVExactCollideSolids(move, thruDashBlocks: true);
                 Solid solid = wrapper.CollideFirst<Solid>(wrapper.Position + Vector2.UnitX * Math.Sign(move));
                 if (solid != null)
@@ -307,6 +265,69 @@ namespace Celeste.Mod.PuzzleHelper
             {
                 return orig(self, move, onCollide, pusher);
             }
+        }
+
+        private void modSinkingPlatformUpdate(On.Celeste.SinkingPlatform.orig_Update orig, SinkingPlatform self)
+        {
+            FieldInfo riseTimerfield = typeof(SinkingPlatform).GetField("riseTimer", BindingFlags.NonPublic
+                                                                          | BindingFlags.Instance);
+            float? riseTimer = riseTimerfield.GetValue(self) as float?;
+
+            FieldInfo startYfield = typeof(SinkingPlatform).GetField("startY", BindingFlags.NonPublic
+                                                             | BindingFlags.Instance);
+            float? startY = startYfield.GetValue(self) as float?;
+
+            FieldInfo shakerfield = typeof(SinkingPlatform).GetField("shaker", BindingFlags.NonPublic
+                                                             | BindingFlags.Instance);
+            Shaker shaker = shakerfield.GetValue(self) as Shaker;
+
+            FieldInfo speedfield = typeof(SinkingPlatform).GetField("speed", BindingFlags.NonPublic
+                                                            | BindingFlags.Instance);
+            float? speed = speedfield.GetValue(self) as float?;
+
+            if (riseTimer == null)
+            {
+                Logger.Log(LogLevel.Error, "PuzzleHelper", "riseTimer was null");
+            }
+
+            if (startY == null)
+            {
+                Logger.Log(LogLevel.Error, "PuzzleHelper", "startY was null");
+            }
+            
+            if (speed == null)
+            {
+                Logger.Log(LogLevel.Error, "PuzzleHelper", "speed was null");
+            }
+
+            PuzzleFallingBlock blockRider = null;
+            foreach (PuzzleFallingBlock block in self.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
+            {
+                if (block.IsRiding(self))
+                {
+                    blockRider = block;
+                    break;
+                }
+            }
+            if (blockRider != null)
+            {
+                if (riseTimer <= 0f)
+                {
+                    if (self.ExactPosition.Y <= startY)
+                    {
+                        Audio.Play("event:/game/03_resort/platform_vert_start", self.Position);
+                    }
+
+                    shaker.ShakeFor(0.15f, removeOnFinish: false);
+                }
+
+                riseTimer = 0.1f;
+                riseTimerfield.SetValue(self, riseTimer);
+
+                speed = Calc.Approach(speed.Value, 30f, 400f * Engine.DeltaTime);
+                speedfield.SetValue(self, speed);
+            }
+            orig(self);
         }
 
         private void springOnBlock(PuzzleFallingBlock block, Spring spring)
