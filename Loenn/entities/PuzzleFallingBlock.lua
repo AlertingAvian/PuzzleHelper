@@ -4,7 +4,7 @@ local CustomEntity = {}
 
 CustomEntity.name = "PuzzleHelper/PuzzleFallingBlock"
 CustomEntity.placements =  {
-    name = "PuzzleHelper/PuzzleFallingBlock",
+    name = "PuzzleFallingBlock",
     data = {
         tiletype = "3",
         behind = false,

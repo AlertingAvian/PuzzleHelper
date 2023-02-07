@@ -1,0 +1,17 @@
+# Mod name
+mods.PuzzleHelper.name=Puzzle Helper
+
+# Block name
+entities.PuzzleHelper/PuzzleFallingBlock.placements.name.PuzzleFallingBlock=Puzzle Falling Block
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.name.tiletype=Tile Type
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.tiletype=The tile the block will use
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.behind=Sets the block behind
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.climbFall=Whether the block will fall when Madeline climbs on it
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.triggerOthers=Whether the block will trigger other blocks when it falls on them
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.triggerDashSwitches=Whether the block activates dash switches when it collides with them'
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.springBounce=Whether the block bounces on springs
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.springHorizontal=The force applied to the block when it bounces on a horizontal spring
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.springVertical=The force applied to the block when it bounces on a vertical spring
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.springVerticalPercent=The percentage of the vertical force applied to the block when it bounces on a horizontal spring
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.width=How wide the block is
+entities.PuzzleHelper/PuzzleFallingBlock.attributes.description.height=How tall the block is
