@@ -47,7 +47,7 @@ jobs:
       - name: Package Mod
         run: |
           mkdir modfiles
-          Move-Item -Path "./Ahorn" -Destination "./modfiles"
+          Move-Item -Path "./Loenn" -Destination "./modfiles"
           Move-Item -Path "./Maps" -Destination "./modfiles"
           Move-Item -Path "./bin/Release/PuzzleHelper.dll" -Destination "./modfiles"
           Move-Item -Path "./everest.yaml" -Destination "./modfiles"
