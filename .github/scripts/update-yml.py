@@ -1,6 +1,13 @@
-from yaml import load, dump, CDumper as Dumper
+from yaml import load, dump
+import yaml
 from yaml.loader import SafeLoader
 import argparse
+
+# Workaround for correct list indenting (https://github.com/yaml/pyyaml/issues/234) (https://github.com/yaml/pyyaml/issues/234#issuecomment-765894586)
+class Dumper(yaml.Dumper):
+	def increase_indent(self, flow=False, *args, **kwargs):
+		return super().increase_indent(flow=flow, indentless=False)
+
 
 # setup argument parser
 parser = argparse.ArgumentParser()
@@ -54,8 +61,9 @@ elif args.version and not args.release and not args.dll:
 else:
 	raise Exception("Missing arguments")
 
+print(data)
 
 # write everest.yaml
 with open(yaml_file, "w") as file:
-	output = dump(data,Dumper=Dumper, default_flow_style=False, sort_keys=False)
+	output = dump(data, Dumper=Dumper, default_flow_style=False, sort_keys=False)
 	file.write(output)
