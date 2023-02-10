@@ -17,7 +17,7 @@ namespace Celeste.Mod.PuzzleHelper
 
         public override void Load()
         {
-            Logger.SetLogLevel("PuzzleHelper", LogLevel.Info);
+            Logger.SetLogLevel("PuzzleHelper", LogLevel.Verbose);
             Logger.Log(LogLevel.Debug, "PuzzleHelper", "Load");
             On.Monocle.Entity.Awake += modAwake;
             On.Celeste.Solid.HasRider += modHasRider;
@@ -63,6 +63,13 @@ namespace Celeste.Mod.PuzzleHelper
             {
                 PuzzleFallingBlockCollider puzzleFallingBlockCollider = new PuzzleFallingBlockCollider((block) => springOnBlock(block, spring));
                 spring.Add(puzzleFallingBlockCollider);
+            }
+
+            if (self is HeartGem heartGem)
+            {
+                PuzzleFallingBlockCollider puzzleFallingBlockCollider = new PuzzleFallingBlockCollider((block) => heartGemOnBlock(block, heartGem));
+                puzzleFallingBlockCollider.Collider = heartGem.Collider;
+                heartGem.Add(puzzleFallingBlockCollider);
             }
 
             if (self is DashSwitch dashSwitch)
@@ -341,6 +348,19 @@ namespace Celeste.Mod.PuzzleHelper
         private void dashSwitchOnBlock(PuzzleFallingBlock block, DashSwitch dashSwitch)
         {
             block.HitDashSwitch(dashSwitch);
+        }
+    
+        private void heartGemOnBlock(PuzzleFallingBlock block, HeartGem heartGem)
+        {
+            Player entity = heartGem.Scene.Tracker.GetEntity<Player>();
+            FieldInfo field = typeof(HeartGem).GetField("collected", BindingFlags.Instance
+                                                                   | BindingFlags.NonPublic);
+            bool? collected = field.GetValue(heartGem) as bool?;
+            if (!collected.Value && entity != null && block.CollectHeart)
+            {
+                typeof(HeartGem).GetMethod("Collect", BindingFlags.NonPublic
+                                                    | BindingFlags.Instance).Invoke(heartGem,new object[] { entity });
+            }
         }
     }
 }

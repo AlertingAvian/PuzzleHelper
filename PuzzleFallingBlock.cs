@@ -35,7 +35,9 @@ namespace Celeste.Mod.PuzzleHelper
 
         public bool HasStartedFalling { get; private set; }
 
-        public bool IgnoreJumpThrus = false; // default to false for now.
+        public bool IgnoreJumpThrus = false;
+
+        public bool CollectHeart { get; private set; }
 
         private char tileType;
         private TileGrid tiles;
@@ -44,10 +46,11 @@ namespace Celeste.Mod.PuzzleHelper
 
         private Vector2 springModifier = Vector2.Zero;
 
-        public PuzzleFallingBlock(EntityData data, Vector2 offset, int width, int height, bool safe, char tile, bool behind, bool climbFall, bool triggerOthers, bool triggerDashSwitches, bool bounceOnSprings, float springHorizontalForce, float springVerticalForce, float springVerticalPercent) : base(data.Position + offset, (float)width, (float)height, safe)
+        public PuzzleFallingBlock(EntityData data, Vector2 offset, int width, int height, bool safe, char tile, bool behind, bool climbFall, bool triggerOthers, bool triggerDashSwitches, bool bounceOnSprings, float springHorizontalForce, float springVerticalForce, float springVerticalPercent, bool collectHeart) : base(data.Position + offset, (float)width, (float)height, safe)
         {
             this.climbFall = climbFall;
             this.TriggerOthers = triggerOthers;
+            this.CollectHeart = collectHeart;
             Hitbox blockTrigger = new Hitbox(Width, 1f, 0, -1);
             PuzzleFallingBlockCollider puzzleFallingBlockCollider = new PuzzleFallingBlockCollider(OnPuzzleFallingBlockCollide);
             puzzleFallingBlockCollider.Collider = blockTrigger;
@@ -77,7 +80,7 @@ namespace Celeste.Mod.PuzzleHelper
             Wrapper = new PuzzleFallingBlockActorWrapper(this);
         }
 
-        public PuzzleFallingBlock(EntityData data, Vector2 offset) : this(data, offset, data.Width, data.Height, data.Bool("safe", true), data.Char("tiletype", '3'), data.Bool("behind", false), data.Bool("climbFall", true), data.Bool("triggerOthers", false), data.Bool("triggerDashSwitches", true), data.Bool("springBounce", true), data.Float("springHorizontal", 120f), data.Float("springVertical"), data.Float("springVerticalPercent", 30f))
+        public PuzzleFallingBlock(EntityData data, Vector2 offset) : this(data, offset, data.Width, data.Height, data.Bool("safe", true), data.Char("tiletype", '3'), data.Bool("behind", false), data.Bool("climbFall", true), data.Bool("triggerOthers", false), data.Bool("triggerDashSwitches", true), data.Bool("springBounce", true), data.Float("springHorizontal", 120f), data.Float("springVertical"), data.Float("springVerticalPercent", 30f), data.Bool("collectHeart", false))
         {
             // dont need to do anything here
         }
