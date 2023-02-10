@@ -17,7 +17,7 @@ namespace Celeste.Mod.PuzzleHelper
 
         public override void Load()
         {
-            Logger.SetLogLevel("PuzzleHelper", LogLevel.Verbose);
+            Logger.SetLogLevel("PuzzleHelper", LogLevel.Info);
             Logger.Log(LogLevel.Debug, "PuzzleHelper", "Load");
             On.Monocle.Entity.Awake += modAwake;
             On.Celeste.Solid.HasRider += modHasRider;
