@@ -11,6 +11,7 @@ CustomEntity.placements =  {
         climbFall = true,
         triggerOthers = false,
         triggerDashSwitches = true,
+        collectHeart = false,
         springBounce = true,
         springHorizontal = 120.0,
         springVertical = 350.0,
