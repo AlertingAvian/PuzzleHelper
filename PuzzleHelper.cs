@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.AidenHelper.Entities;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections.Generic;
@@ -15,7 +14,7 @@ namespace Celeste.Mod.PuzzleHelper
         {
             Instance = this;
         }
-        
+
         public override void Load()
         {
             Logger.SetLogLevel("PuzzleHelper", LogLevel.Info);
@@ -26,8 +25,7 @@ namespace Celeste.Mod.PuzzleHelper
             On.Celeste.Actor.MoveHExact += modActorMoveHExact;
             On.Celeste.Solid.MoveHExact += modSolidMoveHExact;
             On.Celeste.Solid.MoveVExact += modSolidMoveVExact;
-            On.Celeste.Platform.Update += modPlatformUpdate;
-            //On.Celeste.SinkingPlatform.Update += modSinkingPlatformUpdate;
+            On.Celeste.SinkingPlatform.Update += modSinkingPlatformUpdate;
         }
 
         public override void Unload()
@@ -38,8 +36,7 @@ namespace Celeste.Mod.PuzzleHelper
             On.Celeste.Actor.MoveHExact -= modActorMoveHExact;
             On.Celeste.Solid.MoveHExact -= modSolidMoveHExact;
             On.Celeste.Solid.MoveVExact -= modSolidMoveVExact;
-            On.Celeste.Platform.Update -= modPlatformUpdate;
-            //On.Celeste.SinkingPlatform.Update -= modSinkingPlatformUpdate;
+            On.Celeste.SinkingPlatform.Update -= modSinkingPlatformUpdate;
 
         }
 
@@ -267,201 +264,6 @@ namespace Celeste.Mod.PuzzleHelper
             else
             {
                 return orig(self, move, onCollide, pusher);
-            }
-        }
-
-        private void modPlatformUpdate(On.Celeste.Platform.orig_Update orig, Platform self)
-        {
-            if (self is SinkingPlatform sinkingPlatform)
-            {
-                FieldInfo riseTimerfield = typeof(SinkingPlatform).GetField("riseTimer", BindingFlags.NonPublic
-                                                                          | BindingFlags.Instance);
-                float? riseTimer = riseTimerfield.GetValue(sinkingPlatform) as float?;
-
-                FieldInfo startYfield = typeof(SinkingPlatform).GetField("startY", BindingFlags.NonPublic
-                                                                 | BindingFlags.Instance);
-                float? startY = startYfield.GetValue(sinkingPlatform) as float?;
-
-                FieldInfo shakerfield = typeof(SinkingPlatform).GetField("shaker", BindingFlags.NonPublic
-                                                                 | BindingFlags.Instance);
-                Shaker shaker = shakerfield.GetValue(sinkingPlatform) as Shaker;
-
-                FieldInfo speedfield = typeof(SinkingPlatform).GetField("speed", BindingFlags.NonPublic
-                                                                | BindingFlags.Instance);
-                float? speed = speedfield.GetValue(sinkingPlatform) as float?;
-
-                if (riseTimer == null)
-                {
-                    Logger.Log(LogLevel.Error, "PuzzleHelper", "riseTimer was null");
-                }
-
-                if (startY == null)
-                {
-                    Logger.Log(LogLevel.Error, "PuzzleHelper", "startY was null");
-                }
-
-                if (speed == null)
-                {
-                    Logger.Log(LogLevel.Error, "PuzzleHelper", "speed was null");
-                }
-
-                PuzzleFallingBlock blockRider = null;
-                foreach (PuzzleFallingBlock block in sinkingPlatform.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
-                {
-                    if (block.IsRiding(sinkingPlatform))
-                    {
-                        blockRider = block;
-                        break;
-                    }
-                }
-                if (blockRider != null)
-                {
-                    if (riseTimer <= 0f)
-                    {
-                        if (sinkingPlatform.ExactPosition.Y <= startY)
-                        {
-                            Audio.Play("event:/game/03_resort/platform_vert_start", sinkingPlatform.Position);
-                        }
-
-                        shaker.ShakeFor(0.15f, removeOnFinish: false);
-                    }
-
-                    riseTimer = 0.1f;
-                    riseTimerfield.SetValue(sinkingPlatform, riseTimer);
-
-                    speed = Calc.Approach(speed.Value, 30f, 400f * Engine.DeltaTime);
-                    speedfield.SetValue(sinkingPlatform, speed);
-                }
-            } 
-            else if (self is LinkedSinkingPlatform linkedSinkingPlatform)
-            {
-                // sorry for the amount of reflection you are about to see
-                FieldInfo startYField = typeof(LinkedSinkingPlatform).GetField("startY", BindingFlags.NonPublic
-                                                                                       | BindingFlags.Instance);
-
-                FieldInfo endYField = typeof(LinkedSinkingPlatform).GetField("endY", BindingFlags.NonPublic
-                                                                                   | BindingFlags.Instance);
-
-                FieldInfo shakerField = typeof(LinkedSinkingPlatform).GetField("shaker", BindingFlags.NonPublic
-                                                                                       | BindingFlags.Instance);
-
-                FieldInfo speedField = typeof(LinkedSinkingPlatform).GetField("speed", BindingFlags.NonPublic
-                                                                                     | BindingFlags.Instance);
-
-                FieldInfo reversedField = typeof(LinkedSinkingPlatform).GetField("reversed", BindingFlags.NonPublic
-                                                                                           | BindingFlags.Instance);
-
-                FieldInfo enabledField = typeof(LinkedSinkingPlatform).GetField("enabled", BindingFlags.NonPublic
-                                                                                         | BindingFlags.Instance);
-
-                FieldInfo riseTimerField = typeof(LinkedSinkingPlatform).GetField("riseTimer", BindingFlags.NonPublic
-                                                                                             | BindingFlags.Instance);
-
-                FieldInfo downTimerField = typeof(LinkedSinkingPlatform).GetField("downTimer", BindingFlags.NonPublic
-                                                                                             | BindingFlags.Instance);
-
-                FieldInfo downSFXEnabledField = typeof(LinkedSinkingPlatform).GetField("downSFXEnabled", BindingFlags.NonPublic
-                                                                                                       | BindingFlags.Instance);
-
-                FieldInfo upSFXEnabledField = typeof(LinkedSinkingPlatform).GetField("upSFXEnabled", BindingFlags.NonPublic
-                                                                                                   | BindingFlags.Instance);
-
-                FieldInfo downSfxField = typeof(LinkedSinkingPlatform).GetField("downSfx", BindingFlags.NonPublic
-                                                                                         | BindingFlags.Instance);
-
-                FieldInfo upSfxField = typeof(LinkedSinkingPlatform).GetField("upSfx", BindingFlags.NonPublic
-                                                                                     | BindingFlags.Instance);
-                // THERE MAY BE ISSUES HERE WITH NULL VALUES
-
-                float? startY = startYField.GetValue(linkedSinkingPlatform) as float?;
-                float? endY = endYField.GetValue(linkedSinkingPlatform) as float?;
-                Shaker shaker = shakerField.GetValue(linkedSinkingPlatform) as Shaker; // cannot be null
-                float? speed = speedField.GetValue(linkedSinkingPlatform) as float?;
-                bool? reversed = reversedField.GetValue(linkedSinkingPlatform) as bool?;
-                bool? enabled = enabledField.GetValue(linkedSinkingPlatform) as bool?;
-                float? riseTimer = riseTimerField.GetValue(linkedSinkingPlatform) as float?;
-                float? downTimer = downTimerField.GetValue(linkedSinkingPlatform) as float?;
-                bool? downSFXEnabled = downSFXEnabledField.GetValue(linkedSinkingPlatform) as bool?;
-                bool? upSFXEnabled = upSFXEnabledField.GetValue(linkedSinkingPlatform) as bool?;
-                SoundSource downSfx = downSfxField.GetValue(linkedSinkingPlatform) as SoundSource; // cannot be null
-                SoundSource upSfx = upSfxField.GetValue(linkedSinkingPlatform) as SoundSource; // cannot be null
-
-                // end of reflection monster. start of update
-
-                PuzzleFallingBlock blockRider = null;
-                foreach (PuzzleFallingBlock block in linkedSinkingPlatform.Scene.Tracker.GetEntities<PuzzleFallingBlock>())
-                {
-                    if (block.IsRiding(linkedSinkingPlatform))
-                    {
-                        blockRider = block;
-                        break;
-                    }
-                }
-
-                if (blockRider != null && !linkedSinkingPlatform.MasterOfGroup && !reversed.Value)
-                {
-                    foreach (LinkedSinkingPlatform item in linkedSinkingPlatform.Group)
-                    {
-                        float masterDiff = endY.Value - startY.Value;
-                        // item.Move happenes here (more reflection)
-                        float? itemStartY = startYField.GetValue(item) as float?;
-                        float? itemEndY = endYField.GetValue(item) as float?;
-                        Shaker itemShaker = shakerField.GetValue(item) as Shaker; // cannot be null
-                        float? itemSpeed = speedField.GetValue(item) as float?;
-                        bool? itemReversed = reversedField.GetValue(item) as bool?;
-                        bool? itemEnabled = enabledField.GetValue(item) as bool?;
-                        float? itemRiseTimer = riseTimerField.GetValue(item) as float?;
-                        float? itemDownTimer = downTimerField.GetValue(item) as float?;
-                        bool? itemDownSFXEnabled = downSFXEnabledField.GetValue(item) as bool?;
-                        bool? itemUpSFXEnabled = upSFXEnabledField.GetValue(item) as bool?;
-                        SoundSource itemDownSfx = downSfxField.GetValue(item) as SoundSource; // cannot be null
-                        SoundSource itemUpSfx = upSfxField.GetValue(item) as SoundSource; // cannot be null
-
-                        float num = (itemEndY.Value - itemStartY.Value) / masterDiff;
-
-                        if (blockRider != null)
-                        {
-
-                            if (itemRiseTimer.Value <= 0f)
-                            {
-                                if (item.ExactPosition.Y <= itemStartY.Value)
-                                {
-                                    Audio.Play("event:/game/03_resort/platform_vert_start", item.Position);
-                                }
-
-                                itemShaker.ShakeFor(0.15f, removeOnFinish: false);
-                            }
-                            riseTimerField.SetValue(item, 0.1f);
-                            float calcSpeed = Calc.Approach(itemSpeed.Value, (float)(!itemReversed.Value ? 1 : (-1)) * 30f * num, 400f * num * Engine.DeltaTime);
-                            speedField.SetValue(item, calcSpeed);
-                        }
-                        else if (itemRiseTimer.Value > 0f)
-                        {
-                            riseTimerField.SetValue(item, itemRiseTimer.Value - Engine.DeltaTime);
-                            float calcSpeed = Calc.Approach(itemSpeed.Value, (float)((!itemReversed.Value) ? 1 : (-1)) * 45f * num, 600f * num * Engine.DeltaTime);
-                            speedField.SetValue(item, calcSpeed);
-                        }
-                        else
-                        {
-                            downTimerField.SetValue(item, itemDownTimer.Value - Engine.DeltaTime);
-                            float calcSpeed = Calc.Approach(itemSpeed.Value, (float)((!itemReversed.Value) ? 1 : (-1)) * -50f, 400f * num * Engine.DeltaTime);
-                            speedField.SetValue(item, calcSpeed);
-                        }
-
-                        itemSpeed = speedField.GetValue(item) as float?;
-                        // not done with item.move yet
-                        
-                        // end item.Move
-                        item.MasterOfGroup = false;
-                        item.master = linkedSinkingPlatform;
-                        bool? instanceReversed = reversedField.GetValue(item) as bool?;
-                        if (instanceReversed.Value)
-                        {
-                            enabledField.SetValue(item, true);
-                        }
-                    }
-                    // ^ end of foreach loop
-                }
             }
         }
 

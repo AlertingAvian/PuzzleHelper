@@ -67,10 +67,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AidenHelper">
-      <HintPath>deps\AidenHelper.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Celeste">
       <HintPath>deps\Celeste.exe</HintPath>
       <Private>False</Private>
